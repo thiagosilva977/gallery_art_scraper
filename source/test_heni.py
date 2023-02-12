@@ -1,3 +1,4 @@
+import sys
 import time
 
 from lxml import html
@@ -18,7 +19,8 @@ class HeniTrial:
     def start_test(self):
         print('initializing')
         # self.first_challenge()
-        self.second_challenge()
+        # self.second_challenge()
+        self.third_challenge()
 
     def first_challenge(self):
         print('first challenge')
@@ -57,4 +59,44 @@ class HeniTrial:
         print(sale_date)
 
     def second_challenge(self):
-        print('second')
+        #####
+        dim_df = pd.read_csv("assets/dim_df_correct.csv")
+
+        for index, row in dim_df.iterrows():
+            string_to_parse = str(row['rawDim'])
+
+            result = extract_dimensions(string_to_parse=string_to_parse)
+            print(string_to_parse, '>>>>', result)
+
+    def third_challenge(self):
+        print('')
+
+
+def extract_dimensions(string_to_parse):
+    # Expressão regular para o formato "19×52cm"
+    match = re.match(r'(\d+(?:\.\d+)?)×(\d+(?:\.\d+)?)cm', string_to_parse)
+    if match:
+        return float(match.group(1)), float(match.group(2)), None
+
+    # Expressão regular para o formato "50 x 66,4 cm"
+    match = re.match(r"(\d+[.,]?\d+)[\sx]+([\d+[.,]?\d+)", string_to_parse)
+    if match:
+        return float(match.group(1)), float(match.group(2)), None
+
+    # Expressão regular para o formato "168.9 x 274.3 x 3.8 cm (66 1/2 x 108 x 1 1/2 in.)"
+    match = re.match(r'(\d+(?:\.\d+)?) x (\d+(?:\.\d+)?) x (\d+(?:\.\d+)?) cm', string_to_parse)
+    if match:
+        return float(match.group(1)), float(match.group(2)), float(match.group(3))
+
+    # Expressão regular para o formato "Sheet: 16 1/4 × 12 1/4 in. (41.3 × 31.1 cm) Image: 14 × 9 7/8 in. (35.6 × 25.1 cm)"
+    match = re.search(r"Image:.*\((.*) × (.*) cm\)",
+                      string_to_parse)
+    if match:
+        return float(match.group(1)), float(match.group(2)), None
+
+    # Expressão regular para o formato "5 by 5in"
+    match = re.match(r'(\d+(?:\.\d+)?) by (\d+(?:\.\d+)?)in', string_to_parse)
+    if match:
+        return float(match.group(1)), float(match.group(2)), None
+
+    return None, None, None
