@@ -69,7 +69,19 @@ class HeniTrial:
             print(string_to_parse, '>>>>', result)
 
     def third_challenge(self):
-        print('')
+        from scrapy.crawler import CrawlerProcess
+        from gallery_scraper_project.gallery_scraper_project.spiders.gallery_scraper import GalleryScraperSpider
+        process = CrawlerProcess(settings={
+            'FEEDS': {
+                'collected_data.csv': {
+                    'format': 'csv'
+                }
+            }
+        }
+        )
+
+        process.crawl(GalleryScraperSpider)
+        process.start()
 
 
 def extract_dimensions(string_to_parse):
