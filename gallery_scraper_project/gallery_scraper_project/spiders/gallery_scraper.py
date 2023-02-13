@@ -1,12 +1,9 @@
 import json
-import sys
 import time
 import traceback
+
 import requests
-import selenium
 import scrapy
-from bs4 import BeautifulSoup
-import requests
 import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
 
