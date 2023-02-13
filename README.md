@@ -93,4 +93,5 @@ About possible improvements:
 
 ## Time report
  - [Clockfy file]()
- 
+ ![image](https://user-images.githubusercontent.com/11250089/218366037-5fc9cbec-6caf-4453-aceb-1c384f1a7732.png)
+
