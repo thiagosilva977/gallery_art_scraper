@@ -20,7 +20,7 @@ run the ```main.py``` file
 
 
 ### Task 3 
-[CSV File with collected data.]()
+[CSV File with collected data.](https://github.com/thiagosilva977/heni_test/releases/download/v1.0.0/collected_data.csv)
 
 ### Task 4 
 ```
@@ -92,6 +92,6 @@ About possible improvements:
 
 
 ## Time report
- - [Clockfy file]()
+ - [Clockfy file](https://github.com/thiagosilva977/heni_test/releases/download/v1.0.0/Clockify_Relatorio_De_Tempo_Resumido_12_02_2023-13_02_2023-2.pdf)
  ![image](https://user-images.githubusercontent.com/11250089/218366037-5fc9cbec-6caf-4453-aceb-1c384f1a7732.png)
 
