@@ -21,23 +21,22 @@ class GalleryScraperSpider(scrapy.Spider):
             bearspace_cookies, auth_token = self._get_token_bearspace()
             edited_url, bearspace_cookies_new, headers = self.get_page_content(bearspace_cookies=bearspace_cookies,
                                                                                auth_token=auth_token,
-                                                                               current_page=0)
+                                                                               current_page_number=0)
+            # First request to know how many products have
             response_page = requests.get(url=edited_url, cookies=bearspace_cookies_new,
                                          headers=headers)
             response_page = response_page.json()
 
             max_products_count = response_page['data']['catalog']['category']['productsWithMetaData']['totalCount']
 
+            # 100 items per page
             maximum_pages = int(max_products_count / 100) + 1
 
+            # Iterate through each page
             for i in range(maximum_pages):
-                """response = requests.get(edited_url, cookies=bearspace_cookies,
-                                                headers=headers,
-                                                )"""
-
                 edited_url, bearspace_cookies_new, headers = self.get_page_content(bearspace_cookies=bearspace_cookies,
                                                                                    auth_token=auth_token,
-                                                                                   current_page=i)
+                                                                                   current_page_number=i)
 
                 yield scrapy.Request(url=edited_url, callback=self.parse, cookies=bearspace_cookies_new,
                                      headers=headers)
@@ -63,7 +62,7 @@ class GalleryScraperSpider(scrapy.Spider):
             print(item)
 
             doc_item = {
-                'url': str('https://www.bearspace.co.uk/product-page/'+str(item['urlPart'])),
+                'url': str('https://www.bearspace.co.uk/product-page/' + str(item['urlPart'])),
                 'title': item['name'],
                 'media': item['customTextFields'],
                 'height_cm': item['media'][0]['height'],
@@ -119,9 +118,18 @@ class GalleryScraperSpider(scrapy.Spider):
 
         return cookies_dict, authorization_token
 
-    def get_page_content(self, bearspace_cookies, auth_token, current_page):
+    @staticmethod
+    def get_page_content(bearspace_cookies, auth_token, current_page_number):
+        """
+        Just generates url, cookies and headers to future requests.
 
-        offset_number = int(current_page * 100)
+        :param bearspace_cookies: cookies that was collected in _get_token_bearspace function
+        :param auth_token: Auth token that was given in _get_token_bearspace function
+        :param current_page_number: current page number
+        :return: edited_url, bearspace_cookies, headers
+        """
+
+        offset_number = int(current_page_number * 100)
 
         headers = {
             'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/109.0',
@@ -198,9 +206,5 @@ class GalleryScraperSpider(scrapy.Spider):
             offset_number) + '%2C%22limit%22%3A100%2C%22sort%22%3Anull' \
                              '%2C%22filters%22%3Anull%2C%22withOptions%22%3Afalse%2C%22withPriceRange%22' \
                              '%3Afalse%7D'
-
-        """response = requests.get(edited_url, cookies=bearspace_cookies,
-                                headers=headers,
-                                )"""
 
         return edited_url, bearspace_cookies, headers
