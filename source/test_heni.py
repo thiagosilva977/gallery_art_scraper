@@ -20,7 +20,8 @@ class HeniTrial:
         print('initializing')
         # self.first_challenge()
         # self.second_challenge()
-        self.third_challenge()
+        #self.third_challenge()
+        self.fourth_challenge()
 
     def first_challenge(self):
         print('first challenge')
@@ -82,6 +83,35 @@ class HeniTrial:
 
         process.crawl(GalleryScraperSpider)
         process.start()
+
+    def fourth_challenge(self):
+        flights = pd.read_csv("assets/flights.csv")
+        airports = pd.read_csv("assets/airports.csv")
+        weather = pd.read_csv("assets/weather.csv")
+        airlines = pd.read_csv("assets/airlines.csv")
+
+        """Inner join, Left join, Right join, and Full join are different types of SQL joins that combine two or more 
+        tables based on a common column. These concepts are applicable to dataframes in Python as well.
+
+        Inner join: An inner join returns only the rows that have matching values in both tables. The result set 
+        contains only the rows that appear in both tables based on the join condition.
+
+        Left join: A left join returns all the rows from the left table and the matching rows from the right table. 
+        If there is no match, the result set will contain NULL values for the columns from the right table.
+
+        Right join: A right join is similar to a left join, except that it returns all the rows from the right table 
+        and the matching rows from the left table. If there is no match, the result set will contain NULL values for 
+        the columns from the left table.
+
+        Full join: A full join returns all the rows from both tables, whether there is a match or not. If there is no 
+        match, the result set will contain NULL values for the columns from the missing table.
+        
+        
+        """
+
+
+
+
 
 
 def extract_dimensions(string_to_parse):
