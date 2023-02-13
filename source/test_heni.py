@@ -17,14 +17,21 @@ class HeniTrial:
         print('')
 
     def start_test(self):
-        print('initializing')
-        # self.first_challenge()
-        # self.second_challenge()
-        # self.third_challenge()
+        print('initializing tasks:')
+        self.first_challenge()
+        time.sleep(2)
+        self.second_challenge()
+        time.sleep(2)
+        self.third_challenge()
+        time.sleep(2)
         self.fourth_challenge()
 
-    def first_challenge(self):
-        print('first challenge')
+    @staticmethod
+    def first_challenge():
+        """
+        Task 1: Parsing HTML
+        :return:
+        """
         html_path = 'assets/webpage.html'
 
         with open(html_path, "r", encoding='utf-8') as f:
@@ -33,43 +40,82 @@ class HeniTrial:
         soup = BeautifulSoup(html_file, 'html.parser')
 
         artist = soup.find('h1', {'class': 'lotName'}).text.split('(')[0].strip()
-        print(artist)
+        # print(artist)
 
         painting_name = soup.find('h2', {'class': 'itemName', 'id': 'main_center_0_lblLotSecondaryTitle'}).findNext(
             'i').text
-        print(painting_name)
+        # print(painting_name)
 
         price_estimated_gbp = soup.find("span", {"id": "main_center_0_lblPriceEstimatedPrimary"}).text
-        print(price_estimated_gbp)
+        # print(price_estimated_gbp)
 
         price_realized_gbp = soup.find("span", {"id": "main_center_0_lblPriceRealizedPrimary"}).text
-        print(price_realized_gbp)
+        # print(price_realized_gbp)
 
         price_estimated_usd = soup.find("span", {"id": "main_center_0_lblPriceEstimatedSecondary"}).text
-        print(price_estimated_usd)
+        # print(price_estimated_usd)
 
         price_realized_usd = soup.find("div", {"id": "main_center_0_lblPriceRealizedSecondary"}).text
-        print(price_realized_usd)
+        # print(price_realized_usd)
 
         image_url = soup.find("source", {"srcset": True})["srcset"]
-        print(image_url)
+        # print(image_url)
 
         sale_date_str = soup.find("span", id="main_center_0_lblSaleDate").text.strip().rstrip(",")
-        print(sale_date_str)
+        # print(sale_date_str)
         sale_date = datetime.strptime(sale_date_str, '%d %B %Y').date()
-        print(sale_date)
+        # print(sale_date)
 
-    def second_challenge(self):
-        #####
+        parsed_data = {
+            'artist_name': artist,
+            'painting_name': painting_name,
+            'price_realised_gbp': price_realized_gbp,
+            'price_realised_usd': price_realized_usd,
+            'price_estimated_gbp': price_estimated_gbp,
+            'price_estimated_usd': price_estimated_usd,
+            'url_painting_image': image_url,
+            'saledate_paiting': sale_date
+        }
+
+        df = pd.DataFrame([parsed_data])
+
+        print('\n\nHTML parsed task: ')
+        print(df)
+        print('----------------------------\n\n')
+
+    @staticmethod
+    def second_challenge():
+        """
+        Task 2: Regex
+        :return:
+        """
         dim_df = pd.read_csv("assets/dim_df_correct.csv")
-
+        new_data_results = []
         for index, row in dim_df.iterrows():
             string_to_parse = str(row['rawDim'])
 
             result = extract_dimensions(string_to_parse=string_to_parse)
-            print(string_to_parse, '>>>>', result)
+            # print(string_to_parse, '>>>>', result)
 
-    def third_challenge(self):
+            new_data = {
+                'rawDim': string_to_parse,
+                'height': result[0],
+                'width': result[1],
+                'depth': result[2]
+            }
+            new_data_results.append(new_data)
+
+        df = pd.DataFrame(new_data_results)
+        print('\n\nNew data parsed with regex: ')
+        print(df)
+        print('----------------------------\n\n')
+
+    @staticmethod
+    def third_challenge():
+        """
+        Task 3: Web scraper
+        :return:
+        """
         from scrapy.crawler import CrawlerProcess
         from gallery_scraper_project.gallery_scraper_project.spiders.gallery_scraper import GalleryScraperSpider
         process = CrawlerProcess(settings={
@@ -83,10 +129,13 @@ class HeniTrial:
 
         process.crawl(GalleryScraperSpider)
         process.start()
+        print('\n\nTask 3 - Check the collected_data.csv file.n\\n')
 
-    def fourth_challenge(self):
+    @staticmethod
+    def fourth_challenge():
         """
-        
+        Task 4: Data (SQL)
+
         :return:
         """
         flights = pd.read_csv("assets/flights.csv")
@@ -117,7 +166,7 @@ class HeniTrial:
         
         
         """
-        print('Fourth task:\n\n')
+        print('\n\nFourth task:\n\n')
 
         mystring = """
         Using MYSQL to do the sql commands: 
