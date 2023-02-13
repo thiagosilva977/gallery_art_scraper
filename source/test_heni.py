@@ -1,15 +1,9 @@
-import sys
+import re
 import time
-
-from lxml import html
-import re
-import requests
-import pandas as pd
 from datetime import datetime
-from bs4 import BeautifulSoup
 
 import pandas as pd
-import re
+from bs4 import BeautifulSoup
 
 
 class HeniTrial:
@@ -138,10 +132,10 @@ class HeniTrial:
 
         :return:
         """
-        flights = pd.read_csv("assets/flights.csv")
-        airports = pd.read_csv("assets/airports.csv")
-        weather = pd.read_csv("assets/weather.csv")
-        airlines = pd.read_csv("assets/airlines.csv")
+        # flights = pd.read_csv("assets/flights.csv")
+        # airports = pd.read_csv("assets/airports.csv")
+        # weather = pd.read_csv("assets/weather.csv")
+        # airlines = pd.read_csv("assets/airlines.csv")
 
         # print(flights)
         # print(airlines)
@@ -208,28 +202,28 @@ class HeniTrial:
 
 
 def extract_dimensions(string_to_parse):
-    # Expressão regular para o formato "19×52cm"
+    # Regex to "19×52cm"
     match = re.match(r'(\d+(?:\.\d+)?)×(\d+(?:\.\d+)?)cm', string_to_parse)
     if match:
         return float(match.group(1)), float(match.group(2)), None
 
-    # Expressão regular para o formato "50 x 66,4 cm"
+    # Regex to "50 x 66,4 cm"
     match = re.match(r"(\d+[.,]?\d+)[\sx]+([\d+[.,]?\d+)", string_to_parse)
     if match:
         return float(match.group(1)), float(match.group(2)), None
 
-    # Expressão regular para o formato "168.9 x 274.3 x 3.8 cm (66 1/2 x 108 x 1 1/2 in.)"
+    # Regex to "168.9 x 274.3 x 3.8 cm (66 1/2 x 108 x 1 1/2 in.)"
     match = re.match(r'(\d+(?:\.\d+)?) x (\d+(?:\.\d+)?) x (\d+(?:\.\d+)?) cm', string_to_parse)
     if match:
         return float(match.group(1)), float(match.group(2)), float(match.group(3))
 
-    # Expressão regular para o formato "Sheet: 16 1/4 × 12 1/4 in. (41.3 × 31.1 cm) Image: 14 × 9 7/8 in. (35.6 × 25.1 cm)"
+    # Regex to "Sheet: 16 1/4 × 12 1/4 in. (41.3 × 31.1 cm) Image: 14 × 9 7/8 in. (35.6 × 25.1 cm)"
     match = re.search(r"Image:.*\((.*) × (.*) cm\)",
                       string_to_parse)
     if match:
         return float(match.group(1)), float(match.group(2)), None
 
-    # Expressão regular para o formato "5 by 5in"
+    # Regex to "5 by 5in"
     match = re.match(r'(\d+(?:\.\d+)?) by (\d+(?:\.\d+)?)in', string_to_parse)
     if match:
         return float(match.group(1)), float(match.group(2)), None
