@@ -16,17 +16,24 @@ class GalleryScraperSpider(scrapy.Spider):
     # Use to export data:  scrapy crawl gallery_scraper -o scraped_data.csv
 
     def start_requests(self):
+        """
+        Function responsible for collecting raw data
+
+        :return:
+        """
         try:
             # Get cookie to use in API requests
             bearspace_cookies, auth_token = self._get_token_bearspace()
-            edited_url, bearspace_cookies_new, headers = self.get_page_content(bearspace_cookies=bearspace_cookies,
-                                                                               auth_token=auth_token,
-                                                                               current_page_number=0)
+            url_to_request, bearspace_cookies_to_request, headers_to_request = self.get_request_information(
+                bearspace_cookies=bearspace_cookies,
+                auth_token=auth_token,
+                current_page_number=0)
             # First request to know how many products have
-            response_page = requests.get(url=edited_url, cookies=bearspace_cookies_new,
-                                         headers=headers)
+            response_page = requests.get(url=url_to_request, cookies=bearspace_cookies_to_request,
+                                         headers=headers_to_request)
             response_page = response_page.json()
 
+            # Get maximum gallery items
             max_products_count = response_page['data']['catalog']['category']['productsWithMetaData']['totalCount']
 
             # 100 items per page
@@ -34,27 +41,28 @@ class GalleryScraperSpider(scrapy.Spider):
 
             # Iterate through each page
             for i in range(maximum_pages):
-                edited_url, bearspace_cookies_new, headers = self.get_page_content(bearspace_cookies=bearspace_cookies,
-                                                                                   auth_token=auth_token,
-                                                                                   current_page_number=i)
-
-                yield scrapy.Request(url=edited_url, callback=self.parse, cookies=bearspace_cookies_new,
-                                     headers=headers)
-
-                """response_page = self.get_page_content(bearspace_cookies=bearspace_cookies, auth_token=auth_token,
-                                                      current_page=i)
-                yield self.parse(response_page)"""
-                """products_list = response_page['data']['catalog']['category']['productsWithMetaData']['list']
-                print(len(products_list))
-                for item in products_list:
-                    yield self.parse(item)"""
+                # Get necessary information to do requests
+                url_to_request, bearspace_cookies_to_request, headers_to_request = self.get_request_information(
+                    bearspace_cookies=bearspace_cookies,
+                    auth_token=auth_token,
+                    current_page_number=i)
+                # Do request and send request information to parse function.
+                yield scrapy.Request(url=url_to_request, callback=self.parse, cookies=bearspace_cookies_to_request,
+                                     headers=headers_to_request)
 
 
-        except:
+        except BaseException:
             print(traceback.format_exc())
             time.sleep(45)
 
     def parse(self, response, **kwargs):
+        """
+        Parse data from requests
+
+        :param response: Scrapy response request
+        :param kwargs: kwargs
+        :return: parsed data
+        """
         response = json.loads(response.text)
         products_list = response['data']['catalog']['category']['productsWithMetaData']['list']
 
@@ -119,7 +127,7 @@ class GalleryScraperSpider(scrapy.Spider):
         return cookies_dict, authorization_token
 
     @staticmethod
-    def get_page_content(bearspace_cookies, auth_token, current_page_number):
+    def get_request_information(bearspace_cookies, auth_token, current_page_number):
         """
         Just generates url, cookies and headers to future requests.
 
@@ -149,7 +157,7 @@ class GalleryScraperSpider(scrapy.Spider):
             # 'TE': 'trailers',
         }
 
-        original_url_api = 'https://www.bearspace.co.uk/_api/wix-ecommerce-storefront-web/api?o' \
+        """original_url_api = 'https://www.bearspace.co.uk/_api/wix-ecommerce-storefront-web/api?o' \
                            '=getFilteredProducts&s=WixStoresWebClient&q=query,getFilteredProducts(' \
                            '$mainCollectionId:String!,$filters:ProductFilters,$sort:ProductSort,' \
                            '$offset:Int,$limit:Int,$withOptions:Boolean,=,false,$withPriceRange:Boolean,' \
@@ -175,7 +183,7 @@ class GalleryScraperSpider(scrapy.Spider):
                            'value}}}}}}&v=%7B%22mainCollectionId%22%3A%2200000000-000000-000000' \
                            '-000000000001%22%2C%22offset%22%3A20%2C%22limit%22%3A20%2C%22sort%22%3Anull' \
                            '%2C%22filters%22%3Anull%2C%22withOptions%22%3Afalse%2C%22withPriceRange%22' \
-                           '%3Afalse%7D'
+                           '%3Afalse%7D'"""
 
         # Increased request data items from 20 to 100
         edited_url = 'https://www.bearspace.co.uk/_api/wix-ecommerce-storefront-web/api?o' \
@@ -202,9 +210,9 @@ class GalleryScraperSpider(scrapy.Spider):
                      'id,visible}}priceRange(withSubscriptionPriceRange:true),' \
                      '@include(if:$withPriceRange){fromPriceFormatted}discount{mode,' \
                      'value}}}}}}&v=%7B%22mainCollectionId%22%3A%2200000000-000000-000000' \
-                     '-000000000001%22%2C%22offset%22%3A' + str(
-            offset_number) + '%2C%22limit%22%3A100%2C%22sort%22%3Anull' \
-                             '%2C%22filters%22%3Anull%2C%22withOptions%22%3Afalse%2C%22withPriceRange%22' \
-                             '%3Afalse%7D'
+                     '-000000000001%22%2C%22offset%22%3A' + str(offset_number) + \
+                     '%2C%22limit%22%3A100%2C%22sort%22%3Anull' \
+                     '%2C%22filters%22%3Anull%2C%22withOptions%22%3Afalse%2C%22withPriceRange%22' \
+                     '%3Afalse%7D'
 
         return edited_url, bearspace_cookies, headers
