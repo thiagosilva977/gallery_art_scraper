@@ -50,7 +50,7 @@ class GalleryScraperSpider(scrapy.Spider):
                 yield scrapy.Request(url=url_to_request, callback=self.parse, cookies=bearspace_cookies_to_request,
                                      headers=headers_to_request)
 
-
+        # Base exception because I test this script few times
         except BaseException:
             print(traceback.format_exc())
             time.sleep(45)
@@ -67,8 +67,6 @@ class GalleryScraperSpider(scrapy.Spider):
         products_list = response['data']['catalog']['category']['productsWithMetaData']['list']
 
         for item in products_list:
-            print(item)
-
             doc_item = {
                 'url': str('https://www.bearspace.co.uk/product-page/' + str(item['urlPart'])),
                 'title': item['name'],
@@ -83,17 +81,40 @@ class GalleryScraperSpider(scrapy.Spider):
     @staticmethod
     def _get_token_bearspace():
         """
-        Gets cookies to be used in requests
-        :return: cookies dict
+        Gets cookies and authorization to be used in requests
+
+        :return: cookies dict and authorization token
         """
+        # I will use undetected chromedriver to bypass anti-bot systems.
         browser = uc.Chrome()
 
+        # Let me explain the idea:
+        """
+        I analysed the website and I noticed that there's an API that give all information that we need. 
+        But collecting information through this API is quite hard. 
+        To access the API we have two requirements:
+        1. Strong use of cookies. We need specially the "XSRF-TOKEN", "svSession" and "hs" credentials.
+        2. Required use of server authorization. Without this, we will receive the 401 status code. 
+        
+        So, 
+        1. To collect cookies, the initial use of selenium will be sufficient to get necessary cookies for future
+        requests. 
+        2. To get the authorization to use in requests headers, I noticed that the website makes a call to 
+        https://www.bearspace.co.uk/_api/v2/dynamicmodel to just get the authentication to use in the next requests.
+        The code authentication that we need is located for some reason in intId:1744. I don't know if eventually the 
+        website changes this key, but from now is it.
+        
+        
+        """
         browser.get('https://www.bearspace.co.uk/purchase?page=2')
         time.sleep(2)
+        # Navigate to get more cookies
         browser.find_element(by=By.XPATH, value='//button[@class="txtqbB"]').click()
         time.sleep(2)
+        # Get cookies from website
         cookies_collected = browser.get_cookies()
         browser.quit()
+        # Create an unique cookie dict
         cookies_dict = {}
         for cookie in cookies_collected:
             cookies_dict[cookie['name']] = cookie['value']
@@ -110,7 +131,7 @@ class GalleryScraperSpider(scrapy.Spider):
             'Sec-Fetch-Mode': 'cors',
             'Sec-Fetch-Site': 'same-origin',
         }
-
+        # Gets the authorization secret
         response = requests.get('https://www.bearspace.co.uk/_api/v2/dynamicmodel',
                                 cookies=cookies_dict,
                                 headers=headers)
@@ -118,7 +139,7 @@ class GalleryScraperSpider(scrapy.Spider):
         response = response.json()
 
         authorization_token = None
-
+        # Find the authorization code that contains the key intId with 1744 value.
         for key, value in response["apps"].items():
             if value.get("intId") == 1744:
                 authorization_token = value['instance']
@@ -156,7 +177,7 @@ class GalleryScraperSpider(scrapy.Spider):
             # Requests doesn't support trailers
             # 'TE': 'trailers',
         }
-
+        # Keep the original url to reference
         """original_url_api = 'https://www.bearspace.co.uk/_api/wix-ecommerce-storefront-web/api?o' \
                            '=getFilteredProducts&s=WixStoresWebClient&q=query,getFilteredProducts(' \
                            '$mainCollectionId:String!,$filters:ProductFilters,$sort:ProductSort,' \
