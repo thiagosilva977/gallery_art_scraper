@@ -20,7 +20,7 @@ class HeniTrial:
         print('initializing')
         # self.first_challenge()
         # self.second_challenge()
-        #self.third_challenge()
+        # self.third_challenge()
         self.fourth_challenge()
 
     def first_challenge(self):
@@ -85,10 +85,19 @@ class HeniTrial:
         process.start()
 
     def fourth_challenge(self):
+        """
+        
+        :return:
+        """
         flights = pd.read_csv("assets/flights.csv")
         airports = pd.read_csv("assets/airports.csv")
         weather = pd.read_csv("assets/weather.csv")
         airlines = pd.read_csv("assets/airlines.csv")
+
+        # print(flights)
+        # print(airlines)
+        # print(airports)
+        # print(weather)
 
         """Inner join, Left join, Right join, and Full join are different types of SQL joins that combine two or more 
         tables based on a common column. These concepts are applicable to dataframes in Python as well.
@@ -108,10 +117,45 @@ class HeniTrial:
         
         
         """
+        print('Fourth task:\n\n')
 
+        mystring = """
+        Using MYSQL to do the sql commands: 
+        
+        1. Add full airline name to the flights dataframe and show the arr_time, origin, dest and the name of the 
+        airline.
+        
+        SELECT flights.arr_time, flights.origin, flights.dest, airlines.name
+        FROM flights
+        JOIN airlines ON flights.carrier = airlines.carrier;
+    
+        2. Filter resulting data.frame to include only flights containing the word JetBlue
+        
+        SELECT flights.arr_time, flights.origin, flights.dest, airlines.name
+        FROM flights
+        JOIN airlines ON flights.carrier = airlines.carrier
+        WHERE airlines.name LIKE '%JetBlue%';
+    
+        
+        3. Summarise the total number of flights by origin in ascending.
+    
+        SELECT flights.origin, COUNT(flights.origin) AS total_flights
+        FROM flights
+        GROUP BY flights.origin
+        ORDER BY total_flights ASC;
+        
+        4. Filter resulting data.frame to return only origins with more than 100 flights.
+        
+        SELECT flights.origin, COUNT(flights.origin) AS total_flights
+        FROM flights
+        GROUP BY flights.origin
+        HAVING total_flights > 100
+        ORDER BY total_flights ASC;
+    
+        
+        """
 
-
-
+        print(mystring)
 
 
 def extract_dimensions(string_to_parse):
