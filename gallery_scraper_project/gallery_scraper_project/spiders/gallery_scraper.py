@@ -4,8 +4,6 @@ import traceback
 
 import requests
 import scrapy
-import undetected_chromedriver as uc
-from selenium.webdriver.common.by import By
 
 
 class GalleryScraperSpider(scrapy.Spider):
@@ -24,6 +22,7 @@ class GalleryScraperSpider(scrapy.Spider):
         try:
             # Get cookie to use in API requests
             bearspace_cookies, auth_token = self._get_token_bearspace()
+
             url_to_request, bearspace_cookies_to_request, headers_to_request = self.get_request_information(
                 bearspace_cookies=bearspace_cookies,
                 auth_token=auth_token,
@@ -85,8 +84,6 @@ class GalleryScraperSpider(scrapy.Spider):
 
         :return: cookies dict and authorization token
         """
-        # I will use undetected chromedriver to bypass anti-bot systems.
-        browser = uc.Chrome()
 
         # Let me explain the idea:
         """
@@ -106,18 +103,11 @@ class GalleryScraperSpider(scrapy.Spider):
         
         
         """
-        browser.get('https://www.bearspace.co.uk/purchase?page=2')
-        time.sleep(2)
-        # Navigate to get more cookies
-        browser.find_element(by=By.XPATH, value='//button[@class="txtqbB"]').click()
-        time.sleep(2)
-        # Get cookies from website
-        cookies_collected = browser.get_cookies()
-        browser.quit()
+        response = requests.get('https://www.bearspace.co.uk/purchase?page=2')
+
+        cookies_dict = response.cookies.get_dict()
+
         # Create an unique cookie dict
-        cookies_dict = {}
-        for cookie in cookies_collected:
-            cookies_dict[cookie['name']] = cookie['value']
 
         headers = {
             'User-Agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/109.0',
@@ -131,7 +121,7 @@ class GalleryScraperSpider(scrapy.Spider):
             'Sec-Fetch-Mode': 'cors',
             'Sec-Fetch-Site': 'same-origin',
         }
-        # Gets the authorization secret
+        # Gets the authorization secret and svSession
         response = requests.get('https://www.bearspace.co.uk/_api/v2/dynamicmodel',
                                 cookies=cookies_dict,
                                 headers=headers)
@@ -144,6 +134,8 @@ class GalleryScraperSpider(scrapy.Spider):
             if value.get("intId") == 1744:
                 authorization_token = value['instance']
                 break
+
+        cookies_dict['svSession'] = response['svSession']
 
         return cookies_dict, authorization_token
 
@@ -177,6 +169,7 @@ class GalleryScraperSpider(scrapy.Spider):
             # Requests doesn't support trailers
             # 'TE': 'trailers',
         }
+
         # Keep the original url to reference
         """original_url_api = 'https://www.bearspace.co.uk/_api/wix-ecommerce-storefront-web/api?o' \
                            '=getFilteredProducts&s=WixStoresWebClient&q=query,getFilteredProducts(' \
