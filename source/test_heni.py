@@ -202,8 +202,14 @@ class HeniTrial:
 
 
 def extract_dimensions(string_to_parse):
+
+    # Regex to "168.9 x 274.3 x 3.8 cm (66 1/2 x 108 x 1 1/2 in.)"
+    match = re.match(r'(\d+(\.\d+)?) x (\d+(\.\d+)?) x (\d+(\.\d+)?) cm', string_to_parse)
+    if match:
+        return float(match.group(1)), float(match.group(3)), float(match.group(5))
+
     # Regex to "19×52cm"
-    match = re.match(r'(\d+(?:\.\d+)?)×(\d+(?:\.\d+)?)cm', string_to_parse)
+    match = re.match(r"(\d+(?:\.\d+)?)\s*[xX×]\s*(\d+(?:\.\d+)?)\s*(cm)?", string_to_parse)
     if match:
         return float(match.group(1)), float(match.group(2)), None
 
@@ -211,11 +217,6 @@ def extract_dimensions(string_to_parse):
     match = re.match(r"(\d+[.,]?\d+)[\sx]+([\d+[.,]?\d+)", string_to_parse)
     if match:
         return float(match.group(1)), float(match.group(2)), None
-
-    # Regex to "168.9 x 274.3 x 3.8 cm (66 1/2 x 108 x 1 1/2 in.)"
-    match = re.match(r'(\d+(?:\.\d+)?) x (\d+(?:\.\d+)?) x (\d+(?:\.\d+)?) cm', string_to_parse)
-    if match:
-        return float(match.group(1)), float(match.group(2)), float(match.group(3))
 
     # Regex to "Sheet: 16 1/4 × 12 1/4 in. (41.3 × 31.1 cm) Image: 14 × 9 7/8 in. (35.6 × 25.1 cm)"
     match = re.search(r"Image:.*\((.*) × (.*) cm\)",
