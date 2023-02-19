@@ -114,8 +114,8 @@ class HeniTrial:
         from gallery_scraper_project.gallery_scraper_project.spiders.gallery_scraper import GalleryScraperSpider
         process = CrawlerProcess(settings={
             'FEEDS': {
-                'collected_data.xlsx': {
-                    'format': 'xlsx'
+                'collected_data.json': {
+                    'format': 'json'
                 }
             }
         }

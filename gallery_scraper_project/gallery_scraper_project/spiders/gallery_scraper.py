@@ -1,4 +1,5 @@
 import json
+import os
 import time
 import traceback
 
@@ -72,6 +73,7 @@ class GalleryScraperSpider(scrapy.Spider):
             height = None
             width = None
             depth = None
+            diameter = None
             product_year = None
 
             response = requests.get(product_url, timeout=5)
@@ -89,8 +91,6 @@ class GalleryScraperSpider(scrapy.Spider):
                 height, width = match.groups()
                 width = float(width)
                 height = float(height)"""
-
-
 
             # The regular expression searches a sequence of characters that begins with anything (.*),
             # following a sequence of digits, possibly with decimal (\d+(\.\d+)?), following spaces.
@@ -136,28 +136,74 @@ class GalleryScraperSpider(scrapy.Spider):
                         pass
 
                 try:
-                    current_string = p.text
-                    current_string = current_string.replace('Hcm','cm').replace('Wcm','cm')
                     if is_dimentions_collected:
                         pass
                     else:
-                        if 'CM' in str(current_string).upper() or 'X' in str(current_string).upper():
-                            regex = r'(?P<height>\d+(?:\.\d+)?)(?:\s*x\s*(?P<width>\d+(?:\.\d+)?))?(?:\s*x\s*(?P<depth>\d+(?:\.\d+)?))?\s*(cm|CM)?'
-                            match = re.search(regex, current_string)
-                            if match:
-                                height = match.group('height')
-                                width = match.group('width')
-                                depth = match.group('depth')
-                                is_dimentions_collected = True
-                            else:
+
+
+                        if is_dimentions_collected:
+                            pass
+                        else:
+
+                            current_string_0 = str(p.text).upper()
+                            if 'WIDTH' in current_string_0 or 'HEIGHT' in current_string_0:
+                                padrao = re.compile(r'height\s*(\d+(\.\d+)?)\s*(cm)?\s*x\s*width\s*(\d+(\.\d+)?)\s*(cm)?')
+                                match = padrao.search(p.text)
+                                if match:
+                                    height = match.group(1)
+                                    width = match.group(4)
+                                    is_dimentions_collected = True
+
+                            if is_dimentions_collected:
                                 pass
-                        if 'DIAM' in str(current_string).upper():
-                            pattern = r"\d+(?:[,.]\d+)? *(?:cm|mm|in)?"
-                            matches = re.findall(pattern, current_string)
-                            for match in matches:
-                                # converter o valor para float e adicionar na lista de resultados
-                                diameter = float(match.replace(",", "."))
-                                is_dimentions_collected = True
+                            else:
+                                current_string_0 = str(p.text).upper()
+
+                                if 'Hcm' in current_string_0:
+                                    padrao = re.compile(r'(\d+(\.\d+)?)\s*(w|x|W|X)\s*(\d+(\.\d+)?)\s*(h|H)?\s*(cm)?')
+                                    match = padrao.search(p.text)
+                                    if match:
+                                        width = match.group(1)
+                                        height = match.group(4)
+                                        is_dimentions_collected = True
+
+                                if is_dimentions_collected:
+                                    pass
+                                else:
+                                    current_string = p.text
+                                    current_string = current_string.replace('Hcm', 'cm').replace('Wcm', 'cm')
+                                    if 'DIAM' in str(current_string).upper():
+                                        padrao = re.compile(r'(\d+\.?\d*)\s*(cm)?\s*diam')
+                                        match = padrao.search(p.text)
+                                        if match:
+                                            diameter = match.group(1)
+                                            is_dimentions_collected = True
+                                    if is_dimentions_collected:
+                                        pass
+                                    else:
+                                        if 'CM' in str(current_string).upper() or 'X' in str(current_string).upper():
+                                            regex = r'(?P<height>\d+(?:\.\d+)?)(?:\s*x\s*(?P<width>\d+(?:\.\d+)?))?(?:\s*x\s*(?P<depth>\d+(?:\.\d+)?))?\s*(cm|CM)?'
+                                            match = re.search(regex, current_string)
+                                            if match:
+                                                height = match.group('height')
+                                                width = match.group('width')
+                                                if width is None:
+                                                    # Tries again to collect dimensions
+                                                    padrao = re.compile(r'(\d+\.?\d*)\s*(cm)?\s*[xX]\s*(\d+\.?\d*)\s*(cm)?')
+                                                    match = padrao.search(current_string)
+                                                    if match:
+                                                        width = match.group(3)
+                                                    else:
+                                                        padrao = re.compile(
+                                                            r'(\d+(\.\d+)?)\s*(cm)?\s*x\s*(\d+(\.\d+)?)\s*(cm)?')
+                                                        match = padrao.search(p.text)
+                                                        if match:
+                                                            width = match.group(4)
+
+                                                depth = match.group('depth')
+                                                is_dimentions_collected = True
+                                            else:
+                                                pass
 
                 except:
                     pass
@@ -166,19 +212,46 @@ class GalleryScraperSpider(scrapy.Spider):
                     pass
                 else:
                     try:
-                        current_text = p.text
+                        padrao = re.compile(r'\d+[kK] gold')
+                        if padrao.search(p.text):
+                            meta_info = p.text
+                            is_media_already_collected = True
+                        else:
+
+                            padrao = re.compile(r'(\d+(\.\d+)?)(cm)?\s*x\s*(\d+(\.\d+)?)(cm)?')
+                            match = padrao.match(p.text)
+                            if match:
+                                pass
+                            else:
+
+                                padrao = re.compile(r'\d+(\.\d+)?\s*[xX]\s*\d+(\.\d+)?\s*(cm)?')
+                                if padrao.match(p.text):
+                                    pass
+                                else:
+                                    current_text = str(p.text).upper()
+                                    if 'ARTIST:' in current_text:
+                                        pass
+                                    elif 'SET OF ' in current_text:
+                                        pass
+                                    elif 'W X ' in current_text:
+                                        pass
+                                    elif 'Hcm' in current_text:
+                                        pass
+                                    elif 'CM:' in current_text:
+                                        pass
+                                    elif ' X :' in current_text:
+                                        pass
+                                    else:
+                                        meta_info = p.text
+                                        is_media_already_collected = True
+
+                        """current_text = p.text
                         # Regex to check if current string is some dimension
                         regex = r'(\d+(?:[.,]\d+)?)\s*[xX]\s*(\d+(?:[.,]\d+)?)'
 
                         match = re.search(regex, current_text)
                         if match:
-                            pass
-                        else:
-                            if 'Artist:' in current_text:
-                                pass
-                            else:
-                                meta_info = current_text
-
+                            pass"""
 
                         """regex = r'(\d+(?:[.,]\d+)?)\s*[xX]\s*(\d+(?:[.,]\d+)?)'
                         string = p.span.get_text()
@@ -201,18 +274,19 @@ class GalleryScraperSpider(scrapy.Spider):
             """print('metainfo> ', meta_info)
             print('height>', height)
             print('width>', width)"""
-            print("year>> ", product_year)
+            print("meta>> ", meta_info)
 
             doc_item = {
                 'url': product_url,
                 'image_url': str('https://static.wixstatic.com/media/' + str(item['media'][0]['url'])),
                 'title': item['name'],
-                'full_description': full_description,
+                'full_description': 'full_description',
                 'media': meta_info,
                 'year': product_year,
                 'height_cm': height,
                 'width_cm': width,
                 'depth_cm': depth,
+                'diameter_cm': diameter,
                 'price_gbp': item['price']
             }
 
