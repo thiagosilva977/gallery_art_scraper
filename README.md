@@ -20,7 +20,7 @@ run the ```main.py``` file
 
 
 ### Task 3 
-[CSV File with collected data.](https://github.com/thiagosilva977/heni_test/releases/download/v1.0.0/collected_data.csv)
+[XLSX File with collected data.](https://github.com/thiagosilva977/heni_test/blob/master/assets/collected_data_v2.xlsx?raw=true)
 
 ### Task 4 
 ```
