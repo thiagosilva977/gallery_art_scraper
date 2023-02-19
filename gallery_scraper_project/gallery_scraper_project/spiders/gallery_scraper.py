@@ -135,7 +135,7 @@ class GalleryScraperSpider(scrapy.Spider):
 
                             current_string_0 = str(p.text).upper()
                             if 'Hcm' in current_string_0:
-                                pattern = re.compile(r'(\d+(\.\d+)?)\s*(w|x|W|X)\s*(\d+(\.\d+)?)\s*(h|H)?\s*(cm)?')
+                                pattern = re.compile(r'(\d+(\.\d+)?)\s*([wxWX])\s*(\d+(\.\d+)?)\s*([hH])?\s*(cm)?')
                                 match = pattern.search(p.text)
                                 if match:
                                     width = match.group(1)
@@ -163,10 +163,10 @@ class GalleryScraperSpider(scrapy.Spider):
                                     if 'CM' in str(current_string).upper() or 'X' in str(current_string).upper():
                                         regex = r'(?P<height>\d+(?:\.\d+)?)(?:\s*x\s*(?P<width>\d+(?:\.\d+)?))?(' \
                                                 r'?:\s*x\s*(?P<depth>\d+(?:\.\d+)?))?\s*(cm|CM)?'
-                                        match = re.search(regex, current_string)
-                                        if match:
-                                            height = match.group('height')
-                                            width = match.group('width')
+                                        match_1 = re.search(regex, current_string)
+                                        if match_1:
+                                            height = match_1.group('height')
+                                            width = match_1.group('width')
                                             if width is None:
                                                 # Tries again to collect dimensions
                                                 pattern = re.compile(
@@ -181,7 +181,7 @@ class GalleryScraperSpider(scrapy.Spider):
                                                     if match:
                                                         width = match.group(4)
 
-                                            depth = match.group('depth')
+                                            depth = match_1.group('depth')
                                             is_dimensions_collected = True
                                         else:
                                             pass
@@ -230,7 +230,6 @@ class GalleryScraperSpider(scrapy.Spider):
                                         meta_info = p.text
                                         is_media_already_collected = True
 
-                        
                     except AttributeError:
                         pass
 
