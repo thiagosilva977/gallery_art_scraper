@@ -85,6 +85,7 @@ class GalleryScraperSpider(scrapy.Spider):
             print(full_description)
 
             description = soup.find('pre', {'data-hook': 'description'})
+            description_part = description.text
 
             p_tags = description.find_all('p')
             meta_info = None
@@ -127,6 +128,7 @@ class GalleryScraperSpider(scrapy.Spider):
                                 height = match.group(1)
                                 width = match.group(4)
                                 is_dimensions_collected = True
+                                description_part = p.text
 
                         if is_dimensions_collected:
                             pass
@@ -141,6 +143,7 @@ class GalleryScraperSpider(scrapy.Spider):
                                     width = match.group(1)
                                     height = match.group(4)
                                     is_dimensions_collected = True
+                                    description_part = p.text
 
                             if is_dimensions_collected:
                                 pass
@@ -155,6 +158,7 @@ class GalleryScraperSpider(scrapy.Spider):
                                     if match:
                                         diameter = match.group(1)
                                         is_dimensions_collected = True
+                                        description_part = p.text
                                 if is_dimensions_collected:
                                     pass
                                 else:
@@ -183,6 +187,7 @@ class GalleryScraperSpider(scrapy.Spider):
 
                                             depth = match_1.group('depth')
                                             is_dimensions_collected = True
+                                            description_part = p.text
                                         else:
                                             pass
 
@@ -232,6 +237,26 @@ class GalleryScraperSpider(scrapy.Spider):
 
                     except AttributeError:
                         pass
+
+            # Additional regex to try to collect missing information
+            if height is None and width is None and diameter is None:
+                dimensions_regex = r'(\d+\.?\d*)\s*([wWxX])\s*(\d+\.?\d*)\s*([hH])\s*(c?m?)'
+                padrao = re.compile(dimensions_regex)
+                match = padrao.search(description_part)
+                if match:
+                    width = match.group(1)
+                    height = match.group(3)
+                else:
+                    dimensions_regex2 = r'(\d+(\.\d+)?)(cm|cms)\s*x\s*(\d+(\.\d+)?)(cm|cms)'
+                    match = re.search(dimensions_regex2, description_part)
+                    if match:
+                        width = float(match.group(1))
+                        height = float(match.group(4))
+                    else:
+                        pattern3 = r"(\d+(?:\.\d+)?)(?:w|W)\s*x\s*(\d+(?:\.\d+)?)(?:h|H)\s*x\s*(\d+(?:\.\d+)?)(?:d|D)"
+                        match = re.search(pattern3, description_part)
+                        if match:
+                            width, height, depth = match.groups()
 
             doc_item = {
                 'url': product_url,
