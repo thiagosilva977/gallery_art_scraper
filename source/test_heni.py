@@ -114,8 +114,8 @@ class HeniTrial:
         from gallery_scraper_project.gallery_scraper_project.spiders.gallery_scraper import GalleryScraperSpider
         process = CrawlerProcess(settings={
             'FEEDS': {
-                'collected_data.csv': {
-                    'format': 'csv'
+                'collected_data.xlsx': {
+                    'format': 'xlsx'
                 }
             }
         }
@@ -123,7 +123,7 @@ class HeniTrial:
 
         process.crawl(GalleryScraperSpider)
         process.start()
-        print('\n\nTask 3 - Check the collected_data.csv file.n\\n')
+        print('\n\nTask 3 - Check the collected_data.csv file. \n\n')
 
     @staticmethod
     def fourth_challenge():

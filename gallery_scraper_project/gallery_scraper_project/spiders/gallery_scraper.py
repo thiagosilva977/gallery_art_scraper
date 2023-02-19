@@ -4,6 +4,8 @@ import traceback
 
 import requests
 import scrapy
+from bs4 import BeautifulSoup
+import re
 
 
 class GalleryScraperSpider(scrapy.Spider):
@@ -66,12 +68,151 @@ class GalleryScraperSpider(scrapy.Spider):
         products_list = response['data']['catalog']['category']['productsWithMetaData']['list']
 
         for item in products_list:
+            product_url = str('https://www.bearspace.co.uk/product-page/' + str(item['urlPart']))
+            height = None
+            width = None
+            depth = None
+            product_year = None
+
+            response = requests.get(product_url, timeout=5)
+            soup = BeautifulSoup(response.content, 'html.parser')
+            # Getting full description
+            og_description = soup.find('meta', {'property': 'og:description'})
+
+            full_description = og_description['content']
+            print(full_description)
+
+            """regex = r'(\d+(?:[.,]\d+)?)\s*[xX]\s*(\d+(?:[.,]\d+)?)'
+
+            match = re.search(regex, full_description)
+            if match:
+                height, width = match.groups()
+                width = float(width)
+                height = float(height)"""
+
+
+
+            # The regular expression searches a sequence of characters that begins with anything (.*),
+            # following a sequence of digits, possibly with decimal (\d+(\.\d+)?), following spaces.
+            # The letter X in any case between zeros or more spaces (\s*[xX]\s*).
+            # Other sequence with possible decimal, following abbreviated "cm" or "CM" (\d+(\.\d+)?\s*(cm|CM)),
+            # delimited by non-digits represented by \b. In sequence, width and heigh ((.*)).
+
+            """ regex_media_description = r'(.*)\b(\d+(\.\d+)?\s*[xX]\s*\d+(\.\d+)?\s*(cm|CM))\b(.*)'
+            regex_media_description = r'(?i)(?P<description>[a-z][\w, ]*)(?P<dimensions>\d+(?:[.,]\d+)?\s*x\s*\d+(?:[.,]\d+)?\s*(?:x\s*\d+(?:[.,]\d+)?\s*)?cm)(?P<rest>.*)?'
+            match = re.search(regex_media_description, full_description)
+            if match:
+                print(f'Descrição: {match.group("description").strip()}')
+                #print(f'Descrição encontrada: {match.group(1).strip()}')
+            else:
+                print('Nenhuma descrição encontrada')"""
+
+            description = soup.find('pre', {'data-hook': 'description'})
+
+            full_description = description.text
+
+            p_tags = description.find_all('p')
+            meta_info = None
+
+            # imprima o conteúdo de cada tag p
+            is_media_already_collected = False
+            is_dimentions_collected = False
+            is_year_collected = False
+            for p in p_tags:
+
+                if is_year_collected:
+                    pass
+                else:
+                    try:
+                        regex_year = r'\b\d{4}\b'
+                        match_year = re.search(regex_year, p.text)
+                        if match_year:
+                            product_year = int(match_year.group())
+                            is_year_collected = True
+                        else:
+                            product_year = None
+
+                    except:
+                        pass
+
+                try:
+                    current_string = p.text
+                    current_string = current_string.replace('Hcm','cm').replace('Wcm','cm')
+                    if is_dimentions_collected:
+                        pass
+                    else:
+                        if 'CM' in str(current_string).upper() or 'X' in str(current_string).upper():
+                            regex = r'(?P<height>\d+(?:\.\d+)?)(?:\s*x\s*(?P<width>\d+(?:\.\d+)?))?(?:\s*x\s*(?P<depth>\d+(?:\.\d+)?))?\s*(cm|CM)?'
+                            match = re.search(regex, current_string)
+                            if match:
+                                height = match.group('height')
+                                width = match.group('width')
+                                depth = match.group('depth')
+                                is_dimentions_collected = True
+                            else:
+                                pass
+                        if 'DIAM' in str(current_string).upper():
+                            pattern = r"\d+(?:[,.]\d+)? *(?:cm|mm|in)?"
+                            matches = re.findall(pattern, current_string)
+                            for match in matches:
+                                # converter o valor para float e adicionar na lista de resultados
+                                diameter = float(match.replace(",", "."))
+                                is_dimentions_collected = True
+
+                except:
+                    pass
+
+                if is_media_already_collected:
+                    pass
+                else:
+                    try:
+                        current_text = p.text
+                        # Regex to check if current string is some dimension
+                        regex = r'(\d+(?:[.,]\d+)?)\s*[xX]\s*(\d+(?:[.,]\d+)?)'
+
+                        match = re.search(regex, current_text)
+                        if match:
+                            pass
+                        else:
+                            if 'Artist:' in current_text:
+                                pass
+                            else:
+                                meta_info = current_text
+
+
+                        """regex = r'(\d+(?:[.,]\d+)?)\s*[xX]\s*(\d+(?:[.,]\d+)?)'
+                        string = p.span.get_text()
+                        match = re.search(regex, string)
+                        if match:
+                            height, width = match.groups()
+                        else:
+                            # If it doesn't match, is not a width and height format.
+    
+                            # Tries to get year of product
+                            regex_year = r'\b\d{4}\b'
+                            match_year = re.search(regex_year, string)
+                            if match_year:
+                                product_year = match.group()
+                            else:
+                                product_year = None"""
+                    except AttributeError:
+                        pass
+
+            """print('metainfo> ', meta_info)
+            print('height>', height)
+            print('width>', width)"""
+            print("year>> ", product_year)
+
             doc_item = {
-                'url': str('https://www.bearspace.co.uk/product-page/' + str(item['urlPart'])),
+                'url': product_url,
+                'image_url': str('https://static.wixstatic.com/media/' + str(item['media'][0]['url'])),
                 'title': item['name'],
-                'media': item['customTextFields'],
-                'height_cm': item['media'][0]['height'],
-                'width_cm': item['media'][0]['width'],
+                'full_description': full_description,
+                'media': meta_info,
+                'year': product_year,
+                'height_cm': height,
+                'width_cm': width,
+                'depth_cm': depth,
                 'price_gbp': item['price']
             }
 
