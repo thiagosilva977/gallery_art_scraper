@@ -80,11 +80,12 @@ match, the result set will contain NULL values for the columns from the missing 
 I loved taking this test, it was really cool.
 
 For me the difficulty was moderate.
-The regex task was the most difficult, although I handled regular expression logic well, it took the longest time to troubleshoot.
-With the other tasks, I had no major difficulties, it just took time to solve them.
+The regex task was the most difficult part, especially for so some regex on task 3.
+The first time I did the project so fast that I ended up skipping a few steps and leaving out some important details.
+Now the project is much more complete, with better and more accurate data capture, error prevention and better data export.
 
 About possible improvements: 
-- Better parse on the information collected
+- Better parse on the information collected on task 3 (actual accuracy is 97%)
 - Better use of Scrapy (Nowadays I use more a framework that I've built)
 - Improve the presentation of the codes
 - Follow the PEP8 standards a little more
@@ -92,6 +93,7 @@ About possible improvements:
 
 
 ## Time report
- - [Clockfy file](https://github.com/thiagosilva977/heni_test/releases/download/v1.0.0/Clockify_Relatorio_De_Tempo_Resumido_12_02_2023-13_02_2023-2.pdf)
- ![image](https://user-images.githubusercontent.com/11250089/218366037-5fc9cbec-6caf-4453-aceb-1c384f1a7732.png)
+![image](https://user-images.githubusercontent.com/11250089/219970297-07a92bf0-587f-4324-b609-7b0d33ec23c3.png)
+
+
 
