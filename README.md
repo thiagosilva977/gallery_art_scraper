@@ -14,7 +14,8 @@ run the ```main.py``` file
 ### Task 2
 
 ```
-[{'rawDim': '19×52cm', 'height': 19.0, 'width': 52.0, 'depth': None}, {'rawDim': '50 x 66,4 cm', 'height': 50.0, 'width': 66.0, 'depth': None}, {'rawDim': '168.9 x 274.3 x 3.8 cm (66 1/2 x 108 x 1 1/2 in.)', 'height': 168.9, 'width': 274.0, 'depth': None}, {'rawDim': 'Sheet: 16 1/4 × 12 1/4 in. (41.3 × 31.1 cm) Image: 14 × 9 7/8 in. (35.6 × 25.1 cm)', 'height': 35.6, 'width': 25.1, 'depth': None}, {'rawDim': '5 by 5in', 'height': 5.0, 'width': 5.0, 'depth': None}]
+[{'rawDim': '19×52cm', 'height': 19.0, 'width': 52.0, 'depth': None}, {'rawDim': '50 x 66,4 cm', 'height': 50.0, 'width': 66.0, 'depth': None}, {'rawDim': '168.9 x 274.3 x 3.8 cm (66 1/2 x 108 x 1 1/2 in.)', 'height': 168.9, 'width': 274.3, 'depth': 3.8}, {'rawDim': 'Sheet: 16 1/4 × 12 1/4 in. (41.3 × 31.1 cm) Image: 14 × 9 7/8 in. (35.6 × 25.1 cm)', 'height': 35.6, 'width': 25.1, 'depth': None}, {'rawDim': '5 by 5in', 'height': 5.0, 'width': 5.0, 'depth': None}]
+
 
 ```
 
