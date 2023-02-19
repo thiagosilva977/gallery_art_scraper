@@ -225,8 +225,8 @@ def extract_dimensions(string_to_parse):
         return float(match.group(1)), float(match.group(2)), None
 
     # Regex to "5 by 5in"
-    match = re.match(r'(\d+(?:\.\d+)?) by (\d+(?:\.\d+)?)in', string_to_parse)
+    match = re.match(r"(\d+(?:\.\d+)?) *(?:by|x) *(\d+(?:\.\d+)?) *(?:in|inch|inches)", string_to_parse)
     if match:
-        return float(match.group(1)), float(match.group(2)), None
+        return float(match.group(1)) * 2.54, float(match.group(2)) * 2.54, None
 
     return None, None, None
