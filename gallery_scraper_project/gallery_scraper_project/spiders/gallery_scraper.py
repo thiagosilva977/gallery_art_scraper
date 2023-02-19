@@ -258,6 +258,21 @@ class GalleryScraperSpider(scrapy.Spider):
                         if match:
                             width, height, depth = match.groups()
 
+            if width is not None:
+                width = float(width)
+
+            if height is not None:
+                height = float(height)
+
+            if depth is not None:
+                depth = float(depth)
+
+            if diameter is not None:
+                diameter = float(diameter)
+
+            if product_year is not None:
+                product_year = int(product_year)
+
             doc_item = {
                 'url': product_url,
                 'image_url': str('https://static.wixstatic.com/media/' + str(item['media'][0]['url'])),
