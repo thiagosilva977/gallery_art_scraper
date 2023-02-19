@@ -1,12 +1,11 @@
 import json
-import os
+import re
 import time
 import traceback
 
 import requests
 import scrapy
 from bs4 import BeautifulSoup
-import re
 
 
 class GalleryScraperSpider(scrapy.Spider):
@@ -14,7 +13,7 @@ class GalleryScraperSpider(scrapy.Spider):
     allowed_domains = ["www.bearspace.co.uk"]
     start_urls = ["http://www.bearspace.co.uk/"]
 
-    # Use to export data:  scrapy crawl gallery_scraper -o scraped_data.csv
+    # Use to export data:  scrapy crawl gallery_scraper -o scraped_data.json
 
     def start_requests(self):
         """
@@ -52,8 +51,7 @@ class GalleryScraperSpider(scrapy.Spider):
                 yield scrapy.Request(url=url_to_request, callback=self.parse, cookies=bearspace_cookies_to_request,
                                      headers=headers_to_request)
 
-        # Base exception because I test this script few times
-        except BaseException:
+        except AttributeError:
             print(traceback.format_exc())
             time.sleep(45)
 

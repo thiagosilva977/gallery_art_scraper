@@ -1,5 +1,4 @@
 import os
-import traceback
 
 from source.test_heni import HeniTrial
 
